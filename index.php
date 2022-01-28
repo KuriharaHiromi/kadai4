@@ -9,7 +9,6 @@ $split_data = null;
 $message = array();
 $message_array = array();
 $error_message = array();//未入力の内容と配列
-$get_id = $_GET['file_id'];
 
 
 if( !empty($_POST['btn_submit']) ) {//投稿した内容(変数)が空でなければ・・・
@@ -26,7 +25,7 @@ if( !empty($_POST['btn_submit']) ) {//投稿した内容(変数)が空でなけ�
 
         if( $file_handle = fopen( FILENAME, "a") ) {//ファイル名かつパスを指定して開いて、書き込みをする。"a"が書き込み機能
             // 書き込むデータを作成
-		    $data = $_POST['view_name'].",".$_POST['message'].",".$_POST['file_id']."\n";
+		    $data = $_POST['view_name'].",".$_POST['message'].",".$_POST['file_id'].","."\n";
             
 	
 		    fwrite( $file_handle, $data);//$file_handleに$dataを書き込む
@@ -72,9 +71,12 @@ if( $file_handle = fopen( FILENAME,'r') ) {//ファイル名かつパスを指�
 <h1>さぁ、最新ニュースをシェアしましょう</h1>
 <?php if( !empty($error_message) ): ?><!-- $error_messageの中身が空でなければ(「タイトルは必須です。」または「記事は必須です。」が入ってれば) -->
 	<ul class="error_message">
-		<?php foreach( $error_message as $value ): ?><!--$error_messageの中身を$valueに入れていく-->
-			<li><?php echo $value; ?></li>
-		<?php endforeach; ?>
+        <?php $i = 0;?>
+		<?php while(isset($error_message[$i]) ): ?><!--$error_messageの中身を$valueに入れていく-->
+			<?php $value = $error_message[$i] ?>
+            <li><?php echo $value; ?></li>
+        <?php $i++ ?>
+		<?php endwhile; ?>
 	</ul>
 <?php endif; ?>     
 <form method="post" onsubmit="return ask()"><!--フォームの作成とmethodで通信方式の指定、今回はpost。onsubmit属性で送信時に関数ask()を呼び出し、ok(true)で投稿処理がされる。-->
@@ -88,13 +90,17 @@ if( $file_handle = fopen( FILENAME,'r') ) {//ファイル名かつパスを指�
     </div>
     <input type="submit" name="btn_submit" value="投稿"><!--投稿ボタン-->
     
-    <input id="file_id" type="hidden" name="file_id" value="<?php echo uniqid('id_', true); ?>"> <!--echo uniqid('id_', true);で文字と数字の混ざったユニークIDの作成、-->
+    <input id="file_id" type="hidden" name="file_id" value="<?php echo uniqid();?>"> <!--echo uniqid('id_', true);で文字と数字の混ざったユニークIDの作成、-->
 </form>
 <hr>
 
 <section>
 <?php if( !empty($message_array) ): ?><!--$message_arrayの中身が空でなければ-->
-<?php foreach( $message_array as $value ): ?><!--$message_arrayから入力されたデータを取り出し$valueに入れる-->
+<?php $i=0;?>
+<?php while( isset($message_array[$i])):?>
+<?php    $value = $message_array[$i]; ?>
+<?php      $i++; ?>
+<!--$message_arrayから入力されたデータを取り出し$valueに入れる-->
 <article>
     <div class="info">
         <h2><?php echo $value['view_name']; ?></h2><!--<h2>でview_name(タイトル)を出力-->
@@ -104,7 +110,7 @@ if( $file_handle = fopen( FILENAME,'r') ) {//ファイル名かつパスを指�
     <a href="http://localhost/edit2.php?id=<?php echo $value['file_id']?>">記事全文・コメントを見る</a><!--記事の詳細のリンク作成、$valueのユニークidのキーを指定して個別のページに飛ぶように設定-->
     <hr><!--下線部-->
 </article>
-<?php endforeach; ?>
+<?php endwhile; ?>
 <?php endif; ?>    
 </section>
 <script>
